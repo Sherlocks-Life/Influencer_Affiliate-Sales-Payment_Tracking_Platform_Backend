@@ -7,43 +7,51 @@ import trackingRoutes from "./routes/trackingRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 
-function getAllowedOrigins() {
-  return [
-    "http://localhost:5173",
-    "https://influencer-affiliate-sales-payment-six.vercel.app",
-    "https://influencer-affiliate-sales-payment-tracking-platform-6oru54zvz.vercel.app"
-  ];
-}
-
 export function createApp() {
   const app = express();
 
-  const allowedOrigins = getAllowedOrigins();
+  // Allowed Frontend URLs
+  const allowedOrigins = [
+    "http://localhost:5173",
 
-  // CORS Setup
+    // Production Vercel URL
+    "https://influencer-affiliate-sales-payment-six.vercel.app",
+
+    // Preview URL
+    "https://influencer-affiliate-s-git-4c2f63-akhilthadaka97-3631s-projects.vercel.app",
+
+    // New Deployment URL
+    "https://influencer-affiliate-sales-payment-tracking-platform-n2fh627pp.vercel.app"
+  ];
+
+  // CORS Configuration
   app.use(
     cors({
-      origin(origin, callback) {
-        // Allow requests without origin (Postman, health checks)
+      origin: function (origin, callback) {
+        // Allow requests without origin
         if (!origin) {
           return callback(null, true);
         }
 
-        // Allow frontend URLs
+        // Allow frontend domains
         if (allowedOrigins.includes(origin)) {
           return callback(null, true);
         }
 
-        console.log("Blocked Origin:", origin);
+        console.log("Blocked by CORS:", origin);
 
-        return callback(new Error(`CORS blocked for origin: ${origin}`));
+        return callback(
+          new Error(`CORS blocked for origin: ${origin}`)
+        );
       },
 
-      credentials: true
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+      allowedHeaders: ["Content-Type", "Authorization"]
     })
   );
 
-  // JSON Parser
+  // JSON Middleware
   app.use(
     express.json({
       verify: (req, _res, buf) => {
@@ -54,13 +62,13 @@ export function createApp() {
 
   // Health Route
   app.get("/api/health", (_req, res) => {
-    res.json({
+    res.status(200).json({
       success: true,
       message: "API Running Successfully"
     });
   });
 
-  // API Routes
+  // Routes
   app.use("/api/auth", authRoutes);
   app.use("/api/influencer", influencerRoutes);
   app.use("/api/track", trackingRoutes);
