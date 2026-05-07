@@ -4,15 +4,24 @@ import { Server } from "socket.io";
 import { createApp } from "./app.js";
 import { connectDB } from "./config/db.js";
 import { setSocket } from "./sockets/index.js";
-import { ensureJwtSecret, seedDefaultAccounts, seedDemoAnalyticsData } from "./services/bootstrapService.js";
+import {
+  ensureJwtSecret,
+  seedDefaultAccounts,
+  seedDemoAnalyticsData
+} from "./services/bootstrapService.js";
 
-const port = Number(process.env.PORT || 5000);
+const port = process.env.PORT || 5000;
+
 const app = createApp();
+
 const server = http.createServer(app);
-const allowedOrigins = (process.env.CLIENT_URL || "https://influencer-affiliate-sales-payment-tracking-platform-6oru54zvz.vercel.app/")
-  .split(",")
-  .map((x) => x.trim())
-  .filter(Boolean);
+
+// Frontend URL
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://influencer-affiliate-sales-payment-tracking-platform-6oru54zvz.vercel.app"
+];
+
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -21,21 +30,27 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("Socket connected", socket.id);
+  console.log("Socket connected:", socket.id);
 });
 
 setSocket(io);
+
 ensureJwtSecret();
 
+// MongoDB Connection
 connectDB(process.env.MONGO_URI)
   .then(async () => {
+    console.log("MongoDB connected");
+
     await seedDefaultAccounts();
     await seedDemoAnalyticsData();
-    server.listen(port, () => {
-      console.log(`API running on http://localhost:${port}`);
+
+    // IMPORTANT: Start Server
+    server.listen(port, "0.0.0.0", () => {
+      console.log(`Server running on port ${port}`);
     });
   })
   .catch((err) => {
-    console.error("DB connection failed", err.message);
+    console.error("DB connection failed:", err.message);
     process.exit(1);
   });
