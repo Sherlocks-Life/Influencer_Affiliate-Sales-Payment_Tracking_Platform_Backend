@@ -7,7 +7,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 function getAllowedOrigins() {
-  const raw = process.env.CLIENT_URL || "http://localhost:5173,http://localhost:5174";
+  const raw = process.env.CLIENT_URL || "https://influencer-affiliate-sales-payment-tracking-platform-6oru54zvz.vercel.app/";
   return raw
     .split(",")
     .map((x) => x.trim())
