@@ -9,7 +9,7 @@ import { ensureJwtSecret, seedDefaultAccounts, seedDemoAnalyticsData } from "./s
 const port = Number(process.env.PORT || 5000);
 const app = createApp();
 const server = http.createServer(app);
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173,http://localhost:5174")
+const allowedOrigins = (process.env.CLIENT_URL || "https://influencer-affiliate-sales-payment-tracking-platform-6oru54zvz.vercel.app/")
   .split(",")
   .map((x) => x.trim())
   .filter(Boolean);
